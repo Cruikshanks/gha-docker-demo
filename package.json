@@ -1,0 +1,30 @@
+{
+  "name": "gha-docker-demo",
+  "version": "1.0.0",
+  "description": "GHA actions thingy",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "lab --silent-skips --shuffle",
+    "lint": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cruikshanks/gha-docker-demo.git"
+  },
+  "author": "Alan Cruikshanks",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Cruikshanks/gha-docker-demo/issues"
+  },
+  "homepage": "https://github.com/Cruikshanks/gha-docker-demo#readme",
+  "dependencies": {
+    "@hapi/hapi": "^20.1.5",
+    "dotenv": "^10.0.0"
+  },
+  "devDependencies": {
+    "@hapi/code": "^8.0.3",
+    "@hapi/lab": "^24.3.2",
+    "standard": "^16.0.3"
+  }
+}

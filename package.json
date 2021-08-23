@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "watch": "./node_modules/nodemon/bin/nodemon.js --watch ./lib --watch ./config --watch index.js -x node index.js",
+    "watch": "./node_modules/nodemon/bin/nodemon.js --watch ./app --watch ./config --watch index.js -x node index.js",
     "test": "lab --silent-skips --shuffle",
     "lint": "standard"
   },

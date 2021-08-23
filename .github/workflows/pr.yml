@@ -1,0 +1,17 @@
+name: PR
+
+# read-only repo token
+# no access to secrets
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      PORT: 3000
+
+    steps:
+      - name: Event info
+        run: |
+          echo "I am a ${{ github.event_name }} to ${GITHUB_REF#refs/heads/}"

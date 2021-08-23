@@ -32,5 +32,5 @@ jobs:
 
       - name: Event info
         run: |
-          echo "I am a ${{ github.event_name }} to ${{ env.BRANCH }}"
+          echo "I am a ${{ github.event_name }} on ${{ env.BRANCH }}"
           echo "I was triggered by ${{ github.event.workflow_run.event }} which was ${{ github.event.workflow_run.conclusion }}"

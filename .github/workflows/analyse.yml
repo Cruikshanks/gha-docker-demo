@@ -4,17 +4,19 @@ name: ANALYSE
 # access to secrets
 on:
   workflow_run:
-    workflows: ["PR"]
-    types:
-      - completed
+    workflows: ["PR", "CI"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: >
-      ${{ github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.conclusion == 'success' }}
     steps:
+      # Downloads a copy of the code in your repository before running CI tests
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of sonarcloud analysis
+
       - name: Event info
         run: |
           echo "I am a ${{ github.event_name }} to ${GITHUB_REF#refs/heads/}"
+          echo "I was triggered by ${{ github.event.workflow_run.event }} which was ${{ GITHUB_REF#refs/heads/}}"

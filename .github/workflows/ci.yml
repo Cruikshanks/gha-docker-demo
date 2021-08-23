@@ -72,4 +72,4 @@ jobs:
       - name: Docker
         if: ${{ github.event_name != 'pull_request' && !failure() }}
         run: |
-          echo "I am a push to main!"
+          echo "I am a push to main! ${{ github.event_name }}"

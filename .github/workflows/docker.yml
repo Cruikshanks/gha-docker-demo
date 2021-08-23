@@ -1,16 +1,24 @@
-name: ANALYSE
+name: DOCKER
 
 # read-write repo token
 # access to secrets
 on:
+  push:
+    branches:
+      - "!*"
+    tags:
+      - "v*"
   workflow_run:
     workflows: ["CI"]
+    branches:
+      - main
     types:
       - completed
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.event.workflow_run.event, 'pull_request') }}
     steps:
       # Downloads a copy of the code in your repository before running CI tests
       - name: Checkout repository
@@ -18,7 +26,11 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of sonarcloud analysis
 
+      - name: Extract branch name
+        run: |
+          echo "BRANCH=$(echo ${GITUB_REF##*/})" >> $GITHUB_ENV
+
       - name: Event info
         run: |
-          echo "I am a ${{ github.event_name }} to ${GITHUB_REF#refs/heads/}"
+          echo "I am a ${{ github.event_name }} to ${{ env.BRANCH }}"
           echo "I was triggered by ${{ github.event.workflow_run.event }} which was ${{ github.event.workflow_run.conclusion }}"

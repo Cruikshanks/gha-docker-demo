@@ -28,7 +28,7 @@ jobs:
 
       - name: Event info
         run: |
-          echo "I am a ${{ github.event_name }} event on ${{GITHUB_REF#refs/heads/}} / ${{ env.BRANCH }} with the label ${{ github.event.label.name }}"
+          echo "I am a ${{ github.event_name }} event on ${GITHUB_REF#refs/heads/} / ${{ env.BRANCH }} with the label ${{ github.event.label.name }}"
 
       # Before we do anything, check we haven't accidentally left any `describe.only()` or `it.only(` statements in the
       # tests

@@ -10,15 +10,15 @@ jobs:
       PORT: 3000
 
     steps:
-      - name: Event info
-        run: |
-          echo "I am a ${{ github.event_name }} to ${GITHUB_REF#refs/heads/}"
-
       # Downloads a copy of the code in your repository before running CI tests
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of sonarcloud analysis
+
+      - name: Event info
+        run: |
+          echo "I am a ${{ github.event_name }} to ${GITHUB_REF#refs/heads/}"
 
       # Before we do anything, check we haven't accidentally left any `describe.only()` or `it.only(` statements in the
       # tests

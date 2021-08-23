@@ -4,7 +4,9 @@ name: ANALYSE
 # access to secrets
 on:
   workflow_run:
-    workflows: ["PR", "CI"]
+    workflows: ["CI"]
+    types:
+      - completed
 
 jobs:
   build:
@@ -19,4 +21,4 @@ jobs:
       - name: Event info
         run: |
           echo "I am a ${{ github.event_name }} to ${GITHUB_REF#refs/heads/}"
-          echo "I was triggered by ${{ github.event.workflow_run.event }} which was ${{ GITHUB_REF#refs/heads/}}"
+          echo "I was triggered by ${{ github.event.workflow_run.event }} which was ${{ github.event.workflow_run.conclusion }}"

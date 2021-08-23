@@ -10,6 +10,10 @@ jobs:
       PORT: 3000
 
     steps:
+      - name: Event info
+        run: |
+          echo "I am a ${{ github.event_name }} to ${GITHUB_REF#refs/heads/}"
+
       # Downloads a copy of the code in your repository before running CI tests
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -69,6 +73,8 @@ jobs:
           npm test
           sed -i 's/\/home\/runner\/work\/gha-docker-demo\/gha-docker-demo\//\/github\/workspace\//g' coverage/lcov.info
 
-      - name: Event info
-        run: |
-          echo "I am a ${{ github.event_name }} to ${GITHUB_REF#refs/heads/}"
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # This needs to be set in your repo; settings -> secrets

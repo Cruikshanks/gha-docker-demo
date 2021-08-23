@@ -24,7 +24,7 @@ jobs:
 
       - name: Extract branch name
         run: |
-          echo "BRANCH=$(echo ${GITUB_REF##*/})" >> $GITHUB_ENV
+          echo "BRANCH=$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
 
       - name: Event info
         run: |

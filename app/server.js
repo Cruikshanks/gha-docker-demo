@@ -2,6 +2,8 @@
 
 const Hapi = require('@hapi/hapi')
 
+const VersionInfoPlugin = require('./plugins/version_info.plugin')
+
 const { ServerConfig } = require('../config/server.config')
 
 const server = Hapi.server(ServerConfig.hapi)
@@ -17,11 +19,13 @@ server.route({
 })
 
 exports.init = async () => {
+  await server.register(VersionInfoPlugin)
   await server.initialize()
   return server
 }
 
 exports.start = async () => {
+  await this.init()
   await server.start()
   console.log(`Server running at: ${server.info.uri}`)
   return server

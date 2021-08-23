@@ -22,9 +22,13 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of SonarCloud analysis
 
+      - name: Extract branch name
+        run: |
+          echo "BRANCH=$(echo ${GITUB_REF##*/})" >> $GITHUB_ENV
+
       - name: Event info
         run: |
-          echo "I am a ${{ github.event_name }} event on ${GITHUB_REF#refs/heads/} with the label ${{ github.event.label.name }}"
+          echo "I am a ${{ github.event_name }} event on ${{GITHUB_REF#refs/heads/}} / ${{ env.BRANCH }} with the label ${{ github.event.label.name }}"
 
       # Before we do anything, check we haven't accidentally left any `describe.only()` or `it.only(` statements in the
       # tests

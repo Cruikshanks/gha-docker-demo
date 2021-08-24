@@ -46,16 +46,16 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Inv tags
-        run: |
-          echo "DOCKER_TAG=${{ env.DOCKER_TAG }}"
-          echo "tag=${{ steps.meta.outputs.tags[0] }}"
-          echo "version=${{ steps.meta.outputs.labels['org.opencontainers.image.version'] }}"
-
       - name: Set build args
         run: |
           echo "GIT_COMMIT=${{ github.sha }}" >> $GITHUB_ENV
           echo "DOCKER_TAG=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_ENV
+
+      - name: Inv tags
+        run: |
+          echo "DOCKER_TAG=${{ env.DOCKER_TAG }}"
+          echo "TAG=${{ fromJSON(steps.meta.outputs.json).tags[0] }}"
+          echo "VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}"
 
       # Build and push Docker image with Buildx
       # https://github.com/docker/build-push-action

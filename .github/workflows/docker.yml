@@ -25,10 +25,6 @@ jobs:
         run: |
           echo "BRANCH=$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
 
-      - name: Extract git commit hash
-        run: |
-          echo "GIT_COMMIT=${{ github.sha }}" >> $GITHUB_ENV
-
       - name: Event info
         run: |
           echo "I am a ${{ github.event_name }} on ${{ env.BRANCH }}"
@@ -50,12 +46,20 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
+      - name: Set build args
+        run: |
+          echo "GIT_COMMIT=${{ github.sha }}" >> $GITHUB_ENV
+          echo "DOCKER_TAG=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_ENV
+
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
+          build-args: |
+            GIT_COMMIT=${{ env.GIT_COMMIT }}
+            DOCKER_TAG=${{ env.DOCKER_TAG }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

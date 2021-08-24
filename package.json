@@ -1,6 +1,6 @@
 {
   "name": "gha-docker-demo",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "GHA actions thingy",
   "main": "index.js",
   "scripts": {

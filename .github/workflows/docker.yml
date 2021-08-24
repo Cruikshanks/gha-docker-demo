@@ -1,17 +1,16 @@
 name: DOCKER
 
-# read-write repo token
-# access to secrets
 on:
   push:
+    # Trigger this workflow on changes to `main`
     branches: [ main ]
-    # Publish semver tags as releases.
+    # Trigger this workflow if a semver tag is pushed
     tags: [ 'v*.*.*' ]
 
 env:
-  # Use docker.io for Docker Hub if empty
+  # Will default to docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
+  # github.repository will be <account>/<repo>, for example, DEFRA/gha-docker-demo
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
@@ -20,14 +19,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Extract branch name
-        run: |
-          echo "BRANCH=$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
-
-      - name: Event info
-        run: |
-          echo "I am a ${{ github.event_name }} on ${{ env.BRANCH }}"
 
       # Login against a Docker registry
       # https://github.com/docker/login-action
@@ -46,18 +37,6 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Set build args
-        run: |
-          echo "GIT_COMMIT=${{ github.sha }}" >> $GITHUB_ENV
-          echo "DOCKER_VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}" >> $GITHUB_ENV
-          echo "DOCKER_NAME=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_ENV
-
-      - name: Inv tags
-        run: |
-          echo "DOCKER_TAG=${{ env.DOCKER_TAG }}"
-          echo "TAG=${{ fromJSON(steps.meta.outputs.json).tags[0] }}"
-          echo "VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}"
-
       # Build and push Docker image with Buildx
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
@@ -65,8 +44,8 @@ jobs:
         with:
           context: .
           build-args: |
-            GIT_COMMIT=${{ env.GIT_COMMIT }}
-            DOCKER_TAG=${{ env.DOCKER_NAME }}:${{ env.DOCKER_VERSION }}
+            GIT_COMMIT=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            DOCKER_TAG=${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

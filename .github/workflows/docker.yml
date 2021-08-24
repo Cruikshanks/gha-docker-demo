@@ -49,8 +49,8 @@ jobs:
       - name: Inv tags
         run: |
           echo "DOCKER_TAG=${{ env.DOCKER_TAG }}"
-          echo "tag=${{ ${{ steps.meta.outputs.tags[0] }} }}"
-          echo "version=${{ ${{ steps.meta.outputs.labels['org.opencontainers.image.version'] }} }}"
+          echo "tag=${{ steps.meta.outputs.tags[0] }}"
+          echo "version=${{ steps.meta.outputs.labels['org.opencontainers.image.version'] }}"
 
       - name: Set build args
         run: |

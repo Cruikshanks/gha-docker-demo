@@ -64,4 +64,4 @@ jobs:
         with:
           src: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           dst: |
-            docker.io/cruikshanks/${{ env.IMAGE_NAME }}:${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+            docker.io/cruikshanks/gha-docker-demo:${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}

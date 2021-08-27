@@ -9,7 +9,7 @@ on:
 
 env:
   # Will default to docker.io for Docker Hub if empty
-  REGISTRY: ghcr.io
+  GHC_REGISTRY: ghcr.io
   # github.repository will be <account>/<repo>, for example, DEFRA/gha-docker-demo
   IMAGE_NAME: ${{ github.repository }}
 
@@ -25,7 +25,7 @@ jobs:
       - name: Log into Docker Hub
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: cruikshanks
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # Login against a Docker registry
@@ -33,17 +33,17 @@ jobs:
       - name: Log into GH Container Registry
         uses: docker/login-action@v1
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ env.GHC_REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Extract metadata (tags, labels) for Docker
+      # Extract main metadata (tags, labels) for GHC registry
       # https://github.com/docker/metadata-action
-      - name: Extract Docker metadata
-        id: meta
+      - name: Extract GH Container Registry metadata
+        id: meta_github
         uses: docker/metadata-action@v3
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.GHC_REGISTRY }}/${{ env.IMAGE_NAME }}
 
       # Build and push Docker image with Buildx
       # https://github.com/docker/build-push-action
@@ -53,15 +53,36 @@ jobs:
           context: .
           target: production
           build-args: |
-            GIT_COMMIT=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
-            DOCKER_TAG=${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+            GIT_COMMIT=${{ fromJSON(steps.meta_github.outputs.json).labels['org.opencontainers.image.revision'] }}
+            DOCKER_TAG=${{ fromJSON(steps.meta_github.outputs.json).tags[0] }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta_github.outputs.tags }}
+          labels: ${{ steps.meta_github.outputs.labels }}
 
-      - name: Push Image to DockerHub
+      # Extract main metadata (tags, labels) for GHC registry
+      # https://github.com/docker/metadata-action
+      - name: Extract DockerHub Registry metadata
+        id: meta_dockerhub
+        uses: docker/metadata-action@v3
+        with:
+          images: docker.io/${{ env.IMAGE_NAME }}
+
+      # Push images to DockerHub
+      # TODO: When https://github.com/akhilerm/tag-push-action/issues/88 is resolved remove 'Push latest to DockerHub'
+      # step and update `dst:` to just be `dst: ${{ steps.meta_dockerhub.tags }}`
+      - name: Push to DockerHub
         uses: akhilerm/tag-push-action@v1.1.0
         with:
-          src: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-          dst: |
-            docker.io/cruikshanks/gha-docker-demo:${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+          src: ${{ fromJSON(steps.meta_github.outputs.json).tags[0] }}
+          dst: ${{ fromJSON(steps.meta_dockerhub.outputs.json).tags[0] }}
+
+      # Currently, though tag-push-action@v1.1.0 says you can pass in multiple tags for the destination it causes it to
+      # error. The folks behind it are looking at a solution but till then, we have to pass just one dst at a time. This
+      # is our interim solution to also pushing 'latest' to DockerHub when a tag is created.
+      # See https://github.com/akhilerm/tag-push-action/issues/88
+      - name: Push latest to DockerHub
+        uses: akhilerm/tag-push-action@v1.1.0
+        if: contains(github.ref, 'tags')
+        with:
+          src: ${{ fromJSON(steps.meta_github.outputs.json).tags[1] }}
+          dst: ${{ fromJSON(steps.meta_dockerhub.outputs.json).tags[1] }}
